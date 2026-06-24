@@ -160,7 +160,7 @@
             }
         }
 
-        function startRun() {
+	function startRun() {
             if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
             clearConsole();
@@ -168,7 +168,10 @@
             terminalInput.disabled = false;
             terminalInput.value = '';
 
-            ws.send(JSON.stringify({ type: 'run', code: editor.value }));
+            // تنظيف الكود من المسافات الوهمية (NBSP) التي يولدها المتصفح واستبدالها بمسافات عادية
+            let cleanCode = editor.value.replace(/\u00A0/g, " ");
+
+            ws.send(JSON.stringify({ type: 'run', code: cleanCode }));
         }
 
         terminalInput.addEventListener('keypress', (e) => {
