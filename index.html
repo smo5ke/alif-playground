@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-	<link rel="icon" type="image/x-icon" href="./AlifLogo.ico">
+    <link rel="icon" type="image/x-icon" href="./AlifLogo.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>منصة ألف 5.3 التفاعلية</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,7 +15,18 @@
             background-color: #0f172a; 
         }
         
-        #editor, #output-content, #terminalInput { 
+        /* توحيد الخطوط لطبقة التلوين وطبقة الكتابة */
+        .code-font {
+            font-family: 'Consolas', 'Courier New', monospace !important; 
+            tab-size: 4; 
+            line-height: 1.6; 
+            font-size: 14px;
+        }
+        @media (min-width: 640px) {
+            .code-font { font-size: 16px; }
+        }
+        
+        #output-content, #terminalInput { 
             font-family: 'Consolas', 'Courier New', monospace; 
             tab-size: 4; 
             line-height: 1.6; 
@@ -32,10 +43,10 @@
 <body class="text-slate-200 flex flex-col overflow-hidden">
 
     <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/50 p-3 sm:p-4 flex justify-between items-center shadow-lg z-10 shrink-0">
-	<div class="flex items-center gap-2 sm:gap-3">
-    		<img src="./AlifLogo.ico" alt="شعار لغة ألف" class="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-md">
-    		<h1 class="text-base sm:text-xl font-bold tracking-wide text-slate-100">محرر <span class="text-blue-400">ألف 5.3</span></h1>
-	</div>
+        <div class="flex items-center gap-2 sm:gap-3">
+            <img src="./AlifLogo.ico" alt="شعار لغة ألف" class="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-md">
+            <h1 class="text-base sm:text-xl font-bold tracking-wide text-slate-100">محرر <span class="text-blue-400">ألف 5.3</span></h1>
+        </div>
         <button onclick="startRun()" id="runBtn" class="bg-slate-600 text-white px-4 py-2 sm:px-6 sm:py-2.5 rounded-lg text-sm sm:text-base font-bold transition-all flex items-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed">
             <svg class="animate-spin h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             جاري الاتصال...
@@ -48,14 +59,19 @@
             <div class="bg-slate-800/50 text-slate-400 text-xs sm:text-sm py-2 px-4 border-b border-slate-700/50 shrink-0 flex items-center justify-between">
                 <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> الكود المصدري</span>
             </div>
-            <textarea id="editor" class="flex-1 w-full bg-transparent text-blue-200 p-4 outline-none resize-none text-sm sm:text-base leading-relaxed overflow-y-auto" spellcheck="false" placeholder="اكتب كود ألف 5.3 هنا...">
-اطبع("--- لعبة التخمين ---")
-الاسم = ادخل("أدخل اسمك يا بطل: ")
-اطبع(م"أهلاً بك يا {الاسم}!")
+            
+            <div class="flex-1 relative overflow-hidden bg-transparent">
+                <pre id="highlightLayer" class="code-font absolute top-0 right-0 w-full h-full p-4 overflow-auto whitespace-pre-wrap break-all pointer-events-none text-slate-300 z-0 text-right bg-transparent" dir="rtl"></pre>
+                
+                <textarea id="editor" class="code-font absolute top-0 right-0 w-full h-full p-4 bg-transparent text-transparent caret-white outline-none resize-none overflow-auto whitespace-pre-wrap break-all z-10 text-right" dir="rtl" spellcheck="false" placeholder="اكتب كود ألف 5.3 هنا...">
+اللوح = [" " لاجل _ في مدى(9)]
 
-العمر = ادخل("أدخل عمرك للتحقق: ")
-اطبع(م"عمرك {العمر} سنة، يمكنك الاستمرار.")
+دالة عرض_اللوح():
+    اطبع(م"{اللوح[0]} | {اللوح[1]} | {اللوح[2]}")
+    اطبع("---+---+---")
+    اطبع(م"{اللوح[3]} | {اللوح[4]} | {اللوح[5]}")
 </textarea>
+            </div>
         </section>
 
         <section class="flex flex-col overflow-hidden bg-black/40 relative shadow-inner">
@@ -78,11 +94,39 @@
 
     <script>
         const editor = document.getElementById('editor');
+        const highlightLayer = document.getElementById('highlightLayer');
         const outputContent = document.getElementById('output-content');
         const outputContainer = document.getElementById('output-container');
         const terminalInput = document.getElementById('terminalInput');
         const runBtn = document.getElementById('runBtn');
         let ws;
+
+        // قاموس ألوان لغة ألف 5.3
+        const syntaxRules = [
+            { regex: /(#.*)/g, class: 'text-slate-500 italic' },
+            { regex: /(م?"[^"]*")/g, class: 'text-amber-400' },
+            { regex: /(?<=^|\s|[()=])(اطبع|ادخل|اذا|والا|طالما|كرر|لاجل|في|دالة)(?=\s|[()=]|$)/g, class: 'text-fuchsia-400 font-bold' },
+            { regex: /(?<=^|\s|[()=+\-*/\[\]])(\d+)(?=\s|[()=+\-*/\[\]]|$)/g, class: 'text-cyan-400' },
+            { regex: /(=|\+|\-|\*|\/|<|>)/g, class: 'text-blue-400 font-bold' }
+        ];
+
+        function updateHighlight() {
+            let code = editor.value;
+            let html = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+            syntaxRules.forEach(rule => {
+                html = html.replace(rule.regex, `<span class="${rule.class}">$1</span>`);
+            });
+
+            highlightLayer.innerHTML = html + (code.endsWith('\n') ? '\n ' : '');
+        }
+
+        editor.addEventListener('input', updateHighlight);
+
+        editor.addEventListener('scroll', () => {
+            highlightLayer.scrollTop = editor.scrollTop;
+            highlightLayer.scrollLeft = editor.scrollLeft;
+        });
 
         editor.addEventListener('keydown', function(e) {
             if (e.key === 'Tab') {
@@ -91,6 +135,7 @@
                 const end = this.selectionEnd;
                 this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
                 this.selectionStart = this.selectionEnd = start + 4;
+                updateHighlight();
             }
         });
 
@@ -161,7 +206,7 @@
             }
         }
 
-	function startRun() {
+        function startRun() {
             if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
             clearConsole();
@@ -169,7 +214,7 @@
             terminalInput.disabled = false;
             terminalInput.value = '';
 
-            // تنظيف الكود من المسافات الوهمية (NBSP) التي يولدها المتصفح واستبدالها بمسافات عادية
+            // الفلتر السحري لتنظيف مسافات المتصفح الوهمية
             let cleanCode = editor.value.replace(/\u00A0/g, " ");
 
             ws.send(JSON.stringify({ type: 'run', code: cleanCode }));
@@ -192,6 +237,7 @@
         }
 
         connectWebSocket();
+        updateHighlight();
     </script>
 </body>
 </html>
