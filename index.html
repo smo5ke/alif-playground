@@ -113,24 +113,27 @@
             { regex: /(=|\+|\-|\*|\/|<|>)/g, class: 'text-blue-400 font-bold' }
         ];
 
-        function updateHighlight() {
+function updateHighlight() {
             let code = editor.value;
+            
+            // 1. حماية الكود من أخطاء المتصفح وتأمين الأقواس
             let html = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-            syntaxRules.forEach(rule => {
-                html = html.replace(rule.regex, `<span class="${rule.class}">$1</span>`);
+            // 2. محرك البحث الموحد (Single-Pass) يمنع تداخل الألوان نهائياً
+            // تمت إضافة الحدود مثل [ ] و : لتلوين الكلمات الملتصقة بها بشكل سليم
+            const syntaxRegex = /(#.*)|(م?"[^"]*")|(?<=^|\s|[()\[\]{}=+\-*/:،,])(اطبع|ادخل|اذا|والا|طالما|كرر|لاجل|في|دالة|ارجع)(?=\s|[()\[\]{}=+\-*/:،,]|$)|(?<=^|\s|[()\[\]{}=+\-*/:،,])(\d+)(?=\s|[()\[\]{}=+\-*/:،,]|$)|([=+\-*/]|&lt;|&gt;)/g;
+
+            html = html.replace(syntaxRegex, function(match, comment, string, keyword, number, operator) {
+                if (comment)  return `<span class="text-slate-500 italic">${comment}</span>`;
+                if (string)   return `<span class="text-amber-400">${string}</span>`;
+                if (keyword)  return `<span class="text-fuchsia-400 font-bold">${keyword}</span>`;
+                if (number)   return `<span class="text-cyan-400">${number}</span>`;
+                if (operator) return `<span class="text-blue-400 font-bold">${operator}</span>`;
+                return match; // إرجاع النص العادي إذا لم يتطابق مع شيء
             });
 
             highlightLayer.innerHTML = html + (code.endsWith('\n') ? '\n ' : '');
         }
-
-        editor.addEventListener('input', updateHighlight);
-
-        editor.addEventListener('scroll', () => {
-            highlightLayer.scrollTop = editor.scrollTop;
-            highlightLayer.scrollLeft = editor.scrollLeft;
-        });
-
         editor.addEventListener('keydown', function(e) {
             if (e.key === 'Tab') {
                 e.preventDefault();
