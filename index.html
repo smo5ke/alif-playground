@@ -2,8 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <!-- أضفنا متغير وهمي لرابط الأيقونة لمساعدة المتصفح على كسر الكاش -->
-    <link rel="icon" type="image/x-icon" href="./AlifLogo.ico?v=2">
+    <link rel="icon" type="image/x-icon" href="./AlifLogo.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>محرر ألف 5.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,17 +15,7 @@
             background-color: #0f172a; 
         }
         
-        .code-font {
-            font-family: 'Consolas', 'Courier New', monospace !important; 
-            tab-size: 4; 
-            line-height: 1.6; 
-            font-size: 14px;
-        }
-        @media (min-width: 640px) {
-            .code-font { font-size: 16px; }
-        }
-        
-        #output-content, #terminalInput { 
+        #editor, #output-content, #terminalInput { 
             font-family: 'Consolas', 'Courier New', monospace; 
             tab-size: 4; 
             line-height: 1.6; 
@@ -62,10 +51,7 @@
                 <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> الكود المصدري</span>
             </div>
             
-            <div class="flex-1 relative overflow-hidden bg-transparent">
-                <pre id="highlightLayer" class="code-font absolute top-0 right-0 w-full h-full p-4 overflow-auto whitespace-pre-wrap break-all pointer-events-none text-slate-300 z-0 text-right bg-transparent" dir="rtl"></pre>
-                
-                <textarea id="editor" class="code-font absolute top-0 right-0 w-full h-full p-4 bg-transparent text-transparent caret-white outline-none resize-none overflow-auto whitespace-pre-wrap break-all z-10 text-right" dir="rtl" spellcheck="false" placeholder="اكتب كود ألف 5.3 هنا...">
+            <textarea id="editor" class="flex-1 w-full bg-transparent text-blue-200 p-4 outline-none resize-none text-sm sm:text-base leading-relaxed overflow-y-auto" dir="rtl" spellcheck="false" placeholder="اكتب كود ألف 5.3 هنا...">
 اللوح = [" " لاجل _ في مدى(9)]
 
 دالة عرض_اللوح():
@@ -75,7 +61,6 @@
     اطبع("---+---+---")
     اطبع(م"{اللوح[6]} | {اللوح[7]} | {اللوح[8]}")
 </textarea>
-            </div>
         </section>
 
         <section class="flex flex-col overflow-hidden bg-black/40 relative shadow-inner">
@@ -98,43 +83,13 @@
 
     <script>
         const editor = document.getElementById('editor');
-        const highlightLayer = document.getElementById('highlightLayer');
         const outputContent = document.getElementById('output-content');
         const outputContainer = document.getElementById('output-container');
         const terminalInput = document.getElementById('terminalInput');
         const runBtn = document.getElementById('runBtn');
         let ws;
 
-        // المحرك الجديد الآمن 100% (Single-Pass Tokenizer)
-        function updateHighlight() {
-            let code = editor.value;
-            
-            // 1. تشفير الـ HTML لحماية الواجهة
-            let html = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-            // 2. استخدام ممر واحد خالي من التعقيد والتداخل، يعمل على أقدم المتصفحات بدون مشاكل
-            const regex = /(#.*)|(م?"[^"]*")|(^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لاجل|في|دالة|ارجع|صح|خطأ)(?=[^أ-يa-zA-Z0-9_]|$)|(^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
-
-            html = html.replace(regex, (match, comment, str, beforeKw, kw, beforeNum, num, op) => {
-                if (comment) return `<span class="text-slate-500 italic">${comment}</span>`;
-                if (str)     return `<span class="text-amber-400">${str}</span>`;
-                // الدليل القاطع على كسر الكاش: الكلمات ستصبح باللون الوردي (Pink)
-                if (kw)      return `${beforeKw}<span class="text-pink-400 font-bold">${kw}</span>`;
-                if (num)     return `${beforeNum}<span class="text-cyan-400">${num}</span>`;
-                if (op)      return `<span class="text-blue-400 font-bold">${op}</span>`;
-                return match;
-            });
-
-            highlightLayer.innerHTML = html + (code.endsWith('\n') ? '\n ' : '');
-        }
-
-        editor.addEventListener('input', updateHighlight);
-
-        editor.addEventListener('scroll', () => {
-            highlightLayer.scrollTop = editor.scrollTop;
-            highlightLayer.scrollLeft = editor.scrollLeft;
-        });
-
+        // دعم زر Tab في المحرر
         editor.addEventListener('keydown', function(e) {
             if (e.key === 'Tab') {
                 e.preventDefault();
@@ -142,7 +97,6 @@
                 const end = this.selectionEnd;
                 this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
                 this.selectionStart = this.selectionEnd = start + 4;
-                updateHighlight();
             }
         });
 
@@ -221,7 +175,9 @@
             terminalInput.disabled = false;
             terminalInput.value = '';
 
+            // الفلتر الآمن للمسافات
             let cleanCode = editor.value.replace(/\u00A0/g, " ");
+
             ws.send(JSON.stringify({ type: 'run', code: cleanCode }));
         }
 
@@ -242,7 +198,6 @@
         }
 
         connectWebSocket();
-        updateHighlight();
     </script>
 </body>
 </html>
