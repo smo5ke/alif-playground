@@ -43,9 +43,8 @@
 <body class="text-slate-200 flex flex-col overflow-hidden">
 
     <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/50 p-3 sm:p-4 flex justify-between items-center shadow-lg z-10 shrink-0">
-	<div class="flex items-center gap-3 sm:gap-4">
+        <div class="flex items-center gap-3 sm:gap-4">
             <img src="./AlifLogo.ico" alt="شعار لغة ألف" class="h-8 sm:h-11 w-auto object-contain drop-shadow-md">
-            
             <h1 class="text-lg sm:text-2xl font-bold tracking-wide text-slate-100 pt-1">
                 محرر <span class="text-blue-400">ألف 5.3</span>
             </h1>
@@ -73,6 +72,8 @@
     اطبع(م"{اللوح[0]} | {اللوح[1]} | {اللوح[2]}")
     اطبع("---+---+---")
     اطبع(م"{اللوح[3]} | {اللوح[4]} | {اللوح[5]}")
+    اطبع("---+---+---")
+    اطبع(م"{اللوح[6]} | {اللوح[7]} | {اللوح[8]}")
 </textarea>
             </div>
         </section>
@@ -104,36 +105,35 @@
         const runBtn = document.getElementById('runBtn');
         let ws;
 
-        // قاموس ألوان لغة ألف 5.3
-        const syntaxRules = [
-            { regex: /(#.*)/g, class: 'text-slate-500 italic' },
-            { regex: /(م?"[^"]*")/g, class: 'text-amber-400' },
-            { regex: /(?<=^|\s|[()=])(اطبع|ادخل|اذا|والا|طالما|كرر|لاجل|في|دالة)(?=\s|[()=]|$)/g, class: 'text-fuchsia-400 font-bold' },
-            { regex: /(?<=^|\s|[()=+\-*/\[\]])(\d+)(?=\s|[()=+\-*/\[\]]|$)/g, class: 'text-cyan-400' },
-            { regex: /(=|\+|\-|\*|\/|<|>)/g, class: 'text-blue-400 font-bold' }
-        ];
-
-function updateHighlight() {
+        // دالة التلوين بمسار واحد (Single-Pass) تمنع أي تداخل أو أخطاء
+        function updateHighlight() {
             let code = editor.value;
             
-            // 1. حماية الكود من أخطاء المتصفح وتأمين الأقواس
+            // 1. تشفير الأقواس لكي لا يقرأها المتصفح كأكواد HTML
             let html = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-            // 2. محرك البحث الموحد (Single-Pass) يمنع تداخل الألوان نهائياً
-            // تمت إضافة الحدود مثل [ ] و : لتلوين الكلمات الملتصقة بها بشكل سليم
-            const syntaxRegex = /(#.*)|(م?"[^"]*")|(?<=^|\s|[()\[\]{}=+\-*/:،,])(اطبع|ادخل|اذا|والا|طالما|كرر|لاجل|في|دالة|ارجع)(?=\s|[()\[\]{}=+\-*/:،,]|$)|(?<=^|\s|[()\[\]{}=+\-*/:،,])(\d+)(?=\s|[()\[\]{}=+\-*/:،,]|$)|([=+\-*/]|&lt;|&gt;)/g;
+            // 2. محرك بحث موحد يعزل الكلمات المفتاحية والأرقام والنصوص بدقة تامة
+            const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لاجل|في|دالة|ارجع|صح|خطأ)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
 
-            html = html.replace(syntaxRegex, function(match, comment, string, keyword, number, operator) {
-                if (comment)  return `<span class="text-slate-500 italic">${comment}</span>`;
-                if (string)   return `<span class="text-amber-400">${string}</span>`;
-                if (keyword)  return `<span class="text-fuchsia-400 font-bold">${keyword}</span>`;
-                if (number)   return `<span class="text-cyan-400">${number}</span>`;
-                if (operator) return `<span class="text-blue-400 font-bold">${operator}</span>`;
-                return match; // إرجاع النص العادي إذا لم يتطابق مع شيء
+            html = html.replace(regex, (match, comment, str, kw, num, op) => {
+                if (comment) return `<span class="text-slate-500 italic">${comment}</span>`;
+                if (str)     return `<span class="text-amber-400">${str}</span>`;
+                if (kw)      return `<span class="text-fuchsia-400 font-bold">${kw}</span>`;
+                if (num)     return `<span class="text-cyan-400">${num}</span>`;
+                if (op)      return `<span class="text-blue-400 font-bold">${op}</span>`;
+                return match;
             });
 
             highlightLayer.innerHTML = html + (code.endsWith('\n') ? '\n ' : '');
         }
+
+        editor.addEventListener('input', updateHighlight);
+
+        editor.addEventListener('scroll', () => {
+            highlightLayer.scrollTop = editor.scrollTop;
+            highlightLayer.scrollLeft = editor.scrollLeft;
+        });
+
         editor.addEventListener('keydown', function(e) {
             if (e.key === 'Tab') {
                 e.preventDefault();
@@ -220,7 +220,7 @@ function updateHighlight() {
             terminalInput.disabled = false;
             terminalInput.value = '';
 
-            // الفلتر السحري لتنظيف مسافات المتصفح الوهمية
+            // تنظيف المسافات الوهمية
             let cleanCode = editor.value.replace(/\u00A0/g, " ");
 
             ws.send(JSON.stringify({ type: 'run', code: cleanCode }));
