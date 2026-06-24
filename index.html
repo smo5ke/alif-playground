@@ -2,9 +2,10 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/x-icon" href="./AlifLogo.ico">
+    <!-- أضفنا متغير وهمي لرابط الأيقونة لمساعدة المتصفح على كسر الكاش -->
+    <link rel="icon" type="image/x-icon" href="./AlifLogo.ico?v=2">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة ألف 5.3 التفاعلية</title>
+    <title>محرر ألف 5.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
@@ -15,7 +16,6 @@
             background-color: #0f172a; 
         }
         
-        /* توحيد الخطوط لطبقة التلوين وطبقة الكتابة */
         .code-font {
             font-family: 'Consolas', 'Courier New', monospace !important; 
             tab-size: 4; 
@@ -105,21 +105,22 @@
         const runBtn = document.getElementById('runBtn');
         let ws;
 
-        // دالة التلوين بمسار واحد (Single-Pass) تمنع أي تداخل أو أخطاء
+        // المحرك الجديد الآمن 100% (Single-Pass Tokenizer)
         function updateHighlight() {
             let code = editor.value;
             
-            // 1. تشفير الأقواس لكي لا يقرأها المتصفح كأكواد HTML
+            // 1. تشفير الـ HTML لحماية الواجهة
             let html = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-            // 2. محرك بحث موحد يعزل الكلمات المفتاحية والأرقام والنصوص بدقة تامة
-            const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لاجل|في|دالة|ارجع|صح|خطأ)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
+            // 2. استخدام ممر واحد خالي من التعقيد والتداخل، يعمل على أقدم المتصفحات بدون مشاكل
+            const regex = /(#.*)|(م?"[^"]*")|(^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لاجل|في|دالة|ارجع|صح|خطأ)(?=[^أ-يa-zA-Z0-9_]|$)|(^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
 
-            html = html.replace(regex, (match, comment, str, kw, num, op) => {
+            html = html.replace(regex, (match, comment, str, beforeKw, kw, beforeNum, num, op) => {
                 if (comment) return `<span class="text-slate-500 italic">${comment}</span>`;
                 if (str)     return `<span class="text-amber-400">${str}</span>`;
-                if (kw)      return `<span class="text-fuchsia-400 font-bold">${kw}</span>`;
-                if (num)     return `<span class="text-cyan-400">${num}</span>`;
+                // الدليل القاطع على كسر الكاش: الكلمات ستصبح باللون الوردي (Pink)
+                if (kw)      return `${beforeKw}<span class="text-pink-400 font-bold">${kw}</span>`;
+                if (num)     return `${beforeNum}<span class="text-cyan-400">${num}</span>`;
                 if (op)      return `<span class="text-blue-400 font-bold">${op}</span>`;
                 return match;
             });
@@ -220,9 +221,7 @@
             terminalInput.disabled = false;
             terminalInput.value = '';
 
-            // تنظيف المسافات الوهمية
             let cleanCode = editor.value.replace(/\u00A0/g, " ");
-
             ws.send(JSON.stringify({ type: 'run', code: cleanCode }));
         }
 
