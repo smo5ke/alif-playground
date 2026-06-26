@@ -66,14 +66,24 @@
                 <pre id="highlightLayer" class="code-font absolute top-0 right-0 w-full h-full p-4 overflow-auto whitespace-pre-wrap break-all pointer-events-none text-slate-300 z-0 text-right bg-transparent" dir="rtl"></pre>
                 
                 <textarea id="editor" class="code-font absolute top-0 right-0 w-full h-full p-4 bg-transparent text-transparent caret-white outline-none resize-none overflow-auto whitespace-pre-wrap break-all z-10 text-right" dir="rtl" spellcheck="false" placeholder="اكتب كود ألف 5.3 هنا...">
-اللوح = [" " لاجل _ في مدى(9)]
+# مثال يبرز قوة البرمجة كائنية التوجه (OOP) في ألف 5.3
 
-دالة عرض_اللوح():
-    اطبع(م"{اللوح[0]} | {اللوح[1]} | {اللوح[2]}")
-    اطبع("---+---+---")
-    اطبع(م"{اللوح[3]} | {اللوح[4]} | {اللوح[5]}")
-    اطبع("---+---+---")
-    اطبع(م"{اللوح[6]} | {اللوح[7]} | {اللوح[8]}")
+صنف انسان:
+    دالة __تهيئة__(هذا, عمر):
+        هذا.العمر = عمر
+
+صنف شخص(انسان):
+    دالة __تهيئة__(هذا, عمر, طول):
+        اصل().__تهيئة__(عمر)
+        هذا.الطول = طول
+
+    دالة __عرض__(هذا):
+        ارجع م"الطول: {هذا.الطول} سم، العمر: {هذا.العمر} سنة"
+
+# إنشاء كائن جديد وتجربته
+البطل = شخص(25, 180)
+اطبع("--- بيانات اللاعب ---")
+اطبع(البطل)
 </textarea>
             </div>
         </section>
@@ -116,7 +126,7 @@
             let html = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
             // 2. محرك بحث موحد يعزل الكلمات المفتاحية والأرقام والنصوص بدقة تامة
-            const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لاجل|في|دالة|ارجع|صح|خطأ)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
+            const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لكل|في|دالة|ارجع|صح|خطأ)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
 
             html = html.replace(regex, (match, comment, str, kw, num, op) => {
                 if (comment) return `<span class="text-slate-500 italic">${comment}</span>`;
