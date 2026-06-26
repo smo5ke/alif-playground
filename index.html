@@ -15,7 +15,6 @@
             background-color: #0f172a; 
         }
         
-        /* توحيد الخطوط لطبقة التلوين وطبقة الكتابة */
         .code-font {
             font-family: 'Consolas', 'Courier New', monospace !important; 
             tab-size: 4; 
@@ -115,18 +114,13 @@
         const runBtn = document.getElementById('runBtn');
         let ws;
         
-        // متغير عالمي لحساب عدد الأسطر المطبوعة
         let totalOutputLines = 0;
 
-        // دالة التلوين بمسار واحد (Single-Pass) تمنع أي تداخل أو أخطاء
         function updateHighlight() {
             let code = editor.value;
-            
-            // 1. تشفير الأقواس لكي لا يقرأها المتصفح كأكواد HTML
             let html = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-            // 2. محرك بحث موحد يعزل الكلمات المفتاحية والأرقام والنصوص بدقة تامة
-            const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لكل|في|دالة|ارجع|صح|خطأ)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
+            const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لكل|في|دالة|ارجع|صح|خطأ|صنف|اصل)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
 
             html = html.replace(regex, (match, comment, str, kw, num, op) => {
                 if (comment) return `<span class="text-slate-500 italic">${comment}</span>`;
@@ -160,11 +154,10 @@
 
         function clearConsole() { 
             outputContent.innerHTML = ''; 
-            totalOutputLines = 0; // تصفير عداد الأسطر
+            totalOutputLines = 0;
             if (outputContent.dataset) outputContent.dataset.limitReached = "false";
         }
 
-        // تم تحديث الأزرار لتكون بشنفرة (rounded-xl) والنص على اليمين والأيقونة يسار
         function setButtonState(state) {
             if (state === 'connecting') {
                 runBtn.innerHTML = '<span>جاري الاتصال...</span> <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
@@ -193,14 +186,19 @@
                 
                 ws.onopen = () => {
                     setButtonState('ready');
-                    outputContent.innerHTML = `<span class="text-green-500 font-bold">--- تم الاتصال بمحرك ألف 5.3 بنجاح ---</span>\n`;
+                    // التعديل السحري: لا يمسح الشاشة إذا كان بها محتوى مسبقاً
+                    if (outputContent.innerHTML.trim() === '') {
+                        outputContent.innerHTML = `<span class="text-green-500 font-bold">--- تم الاتصال بمحرك ألف 5.3 بنجاح ---</span>\n`;
+                    } else {
+                        outputContent.innerHTML += `\n<span class="text-green-500 font-bold bg-green-900/20 px-2 py-1 rounded inline-block mt-2">--- تم إعادة الاتصال والمحرك جاهز ---</span>\n`;
+                        outputContainer.scrollTop = outputContainer.scrollHeight;
+                    }
                 };
 
                 ws.onmessage = (event) => {
                     const data = JSON.parse(event.data);
                     
                     if (data.type === 'output' || data.type === 'error') {
-                        // حماية المتصفح والسيرفر من الحلقات اللانهائية (إيقاف عند 10 آلاف سطر)
                         if (outputContent.dataset.limitReached === "true") return;
 
                         let newLines = (data.text.match(/\n/g) || []).length + 1;
@@ -211,7 +209,7 @@
                             outputContent.dataset.limitReached = "true";
                             outputContainer.scrollTop = outputContainer.scrollHeight;
                             
-                            if(ws) ws.close(); // إغلاق الاتصال بقوة لإيقاف العملية في السيرفر
+                            if(ws) ws.close(); 
                             return;
                         }
 
@@ -253,9 +251,7 @@
             terminalInput.disabled = false;
             terminalInput.value = '';
 
-            // تنظيف المسافات الوهمية
             let cleanCode = editor.value.replace(/\u00A0/g, " ");
-
             ws.send(JSON.stringify({ type: 'run', code: cleanCode }));
         }
 
