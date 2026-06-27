@@ -10,48 +10,17 @@
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700&display=swap');
         
-        /* التعديلات المقترحة لضمان ثبات الشاشة أفقياً */
-        html, body {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
+        body { 
             font-family: 'Tajawal', sans-serif; 
+            height: 100dvh; 
             background-color: #0f172a; 
         }
-
-        main, section, #output-container, #output-content {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
-            box-sizing: border-box;
-        }
-
-        /* منع تحريك الصفحة أفقياً أو عمودياً بشكل وهمي على الجوال */
-        @media (max-width: 767px) {
-            body {
-                position: fixed;
-                inset: 0;
-                overflow: hidden;
-            }
-            main {
-                overflow: hidden;
-                height: 100%;
-            }
-            #output-container {
-                overflow-y: auto;
-                overflow-x: hidden;
-                -webkit-overflow-scrolling: touch;
-            }
-        }
         
-        /* توحيد الخطوط لطبقة التلوين وطبقة الكتابة */
         .code-font {
             font-family: 'Noto Kufi Arabic', sans-serif !important; 
             tab-size: 4; 
             line-height: 1.7; 
             font-size: 13px;
-            letter-spacing: normal !important;
-            word-spacing: normal !important;
         }
         @media (min-width: 640px) {
             .code-font { font-size: 15px; }
@@ -63,12 +32,7 @@
             line-height: 1.6; 
         }
         
-        /* تكسير الكلمات الطويلة جداً لكي لا تمدد التيرمينال */
-        #output-content { 
-            white-space: pre-wrap; 
-            word-break: break-word;
-            overflow-wrap: anywhere;
-        }
+        #output-content { white-space: pre-wrap; }
         
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -76,7 +40,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body class="text-slate-200 flex flex-col h-[100dvh]">
+<body class="text-slate-200 flex flex-col overflow-hidden">
 
     <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/50 p-3 sm:p-4 flex justify-between items-center shadow-lg z-10 shrink-0">
         <div class="flex items-center gap-3 sm:gap-4">
@@ -91,18 +55,15 @@
         </button>
     </header>
 
-    <main class="flex-1 grid grid-rows-2 md:grid-rows-1 md:grid-cols-2 bg-[#0b1120] relative">
+    <main class="flex-1 grid grid-rows-2 md:grid-rows-1 md:grid-cols-2 overflow-hidden bg-[#0b1120]">
         
-        <section class="flex flex-col border-b md:border-b-0 md:border-l border-slate-700/50 relative h-full">
+        <section class="flex flex-col overflow-hidden border-b md:border-b-0 md:border-l border-slate-700/50">
             <div class="bg-slate-800/50 text-slate-400 text-xs sm:text-sm py-2 px-4 border-b border-slate-700/50 shrink-0 flex items-center justify-between">
-                <span class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> 
-                    الشيفرة المصدرية
-                </span>
+                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> الكود المصدري</span>
             </div>
             
             <div class="flex-1 relative overflow-hidden bg-transparent">
-                <pre id="highlightLayer" class="code-font absolute top-0 right-0 w-full h-full p-4 overflow-hidden whitespace-pre-wrap break-all pointer-events-none text-slate-300 z-0 text-right bg-transparent" dir="rtl"></pre>
+                <pre id="highlightLayer" class="code-font absolute top-0 right-0 w-full h-full p-4 overflow-auto whitespace-pre-wrap break-all pointer-events-none text-slate-300 z-0 text-right bg-transparent" dir="rtl"></pre>
                 
                 <textarea id="editor" class="code-font absolute top-0 right-0 w-full h-full p-4 bg-transparent text-transparent caret-white outline-none resize-none overflow-auto whitespace-pre-wrap break-all z-10 text-right" dir="rtl" spellcheck="false" placeholder="اكتب كود ألف 5.3 هنا...">
 # مثال يبرز قوة البرمجة كائنية التوجه (OOP) في ألف 5.3
@@ -127,16 +88,13 @@
             </div>
         </section>
 
-        <section class="flex flex-col bg-black/40 relative shadow-inner h-full">
+        <section class="flex flex-col overflow-hidden bg-black/40 relative shadow-inner">
             <div class="bg-slate-800/50 text-slate-400 text-xs sm:text-sm py-2 px-4 border-b border-slate-700/50 flex justify-between items-center shrink-0">
-                <span class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-                    طرفية المخرجات
-                </span>
+                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg> شاشة المخرجات (Terminal)</span>
                 <button onclick="clearConsole()" class="text-slate-500 hover:text-slate-200 transition-colors px-2 py-1 rounded hover:bg-slate-700/50 text-xs">مسح الشاشة</button>
             </div>
             
-            <div id="output-container" class="flex-1 p-4 relative" dir="rtl" style="text-align: right;">
+            <div id="output-container" class="flex-1 p-4 overflow-y-auto" dir="rtl" style="text-align: right;">
                 <div id="output-content" class="text-slate-300 text-sm sm:text-base leading-relaxed"></div>
             </div>
 
@@ -160,29 +118,22 @@
         let totalOutputLines = 0;
         const MAX_LINES = 10000;
         
+        // متغيرات للتحكم بحالة زر الإيقاف والتشغيل
         let isRunning = false;
         let intentionalClose = false;
-
-        // تطبيق خدعة الفوكس لمنع الإزاحة الأفقية عند فتح لوحة المفاتيح
-        terminalInput.addEventListener('focus', () => {
-            setTimeout(() => {
-                outputContainer.scrollTop = outputContainer.scrollHeight;
-                outputContainer.scrollLeft = 0;
-            }, 50);
-        });
 
         function updateHighlight() {
             let code = editor.value;
             let html = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-            const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لكل|في|دالة|ارجع|صح|خطأ|صنف|اصل)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
+            const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لاجل|في|دالة|ارجع|صح|خطأ|صنف|اصل)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
 
             html = html.replace(regex, (match, comment, str, kw, num, op) => {
-                if (comment) return `<span class="text-slate-500">${comment}</span>`;
+                if (comment) return `<span class="text-slate-500 italic">${comment}</span>`;
                 if (str)     return `<span class="text-amber-400">${str}</span>`;
-                if (kw)      return `<span class="text-fuchsia-400">${kw}</span>`;
+                if (kw)      return `<span class="text-fuchsia-400 font-bold">${kw}</span>`;
                 if (num)     return `<span class="text-cyan-400">${num}</span>`;
-                if (op)      return `<span class="text-blue-400">${op}</span>`;
+                if (op)      return `<span class="text-blue-400 font-bold">${op}</span>`;
                 return match;
             });
 
@@ -245,6 +196,7 @@
                 runBtn.className = "bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-900/20 active:scale-95";
             } else if (state === 'running') {
                 isRunning = true;
+                // الزر يتحول للون الأحمر ليصبح زر "إيقاف" يمكن الضغط عليه
                 runBtn.innerHTML = '<span class="pt-[3px] sm:pt-[2px]">إيقاف</span> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect></svg>';
                 runBtn.disabled = false; 
                 runBtn.className = "bg-red-600 hover:bg-red-500 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-900/20 active:scale-95";
@@ -289,6 +241,7 @@
                 };
 
                 ws.onclose = () => {
+                    // إذا كان الإغلاق متعمداً من زر الإيقاف، أعد الاتصال بصمت فوراً
                     if (intentionalClose) {
                         intentionalClose = false;
                         connectWebSocket(); 
@@ -308,11 +261,12 @@
             }
         }
 
+        // دالة التبديل: تشغل الكود إذا كان متوقفاً، وتوقفه إذا كان يعمل
         function toggleRun() {
             if (isRunning) {
                 if (ws && ws.readyState === WebSocket.OPEN) {
                     intentionalClose = true;
-                    ws.close(); 
+                    ws.close(); // يقتل العملية في السيرفر فوراً
                     appendToTerminal("\n⚠️ تم إيقاف التنفيذ يدوياً.\n", "text-amber-400 font-bold");
                     terminalInput.disabled = true;
                 }
