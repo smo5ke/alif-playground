@@ -8,25 +8,26 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700&display=swap');
         
-	body { 
+        body { 
             font-family: 'Tajawal', sans-serif; 
             height: 100dvh; 
             background-color: #0f172a; 
         }
         
-             .code-font {
+        .code-font {
             font-family: 'Noto Kufi Arabic', sans-serif !important; 
             tab-size: 4; 
-            line-height: 1.7; /* زيادة الارتفاع قليلاً لتناسب الخط الكوفي */
+            line-height: 1.7; 
             font-size: 13px;
         }
         @media (min-width: 640px) {
-            .code-font { font-size: 16px; }
+            .code-font { font-size: 15px; }
         }
         
         #output-content, #terminalInput { 
-            font-family: 'Consolas', 'Courier New', monospace; 
+            font-family: 'Noto Kufi Arabic', sans-serif; 
             tab-size: 4; 
             line-height: 1.6; 
         }
@@ -48,8 +49,8 @@
                 محرر <span class="text-blue-400">ألف 5.3</span>
             </h1>
         </div>
-        <button onclick="startRun()" id="runBtn" class="bg-slate-600 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed">
-            <span>جاري الاتصال...</span>
+        <button onclick="toggleRun()" id="runBtn" class="bg-slate-600 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed">
+            <span class="pt-[3px] sm:pt-[2px]">جاري الاتصال...</span>
             <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
         </button>
     </header>
@@ -104,23 +105,28 @@
         </section>
 
     </main>
-<script>
+
+    <script>
         const editor = document.getElementById('editor');
         const highlightLayer = document.getElementById('highlightLayer');
         const outputContent = document.getElementById('output-content');
         const outputContainer = document.getElementById('output-container');
         const terminalInput = document.getElementById('terminalInput');
         const runBtn = document.getElementById('runBtn');
-        let ws;
         
+        let ws;
         let totalOutputLines = 0;
-        const MAX_LINES = 10000; // الحد الأقصى للأسطر (البافر)
+        const MAX_LINES = 10000;
+        
+        // متغيرات للتحكم بحالة زر الإيقاف والتشغيل
+        let isRunning = false;
+        let intentionalClose = false;
 
         function updateHighlight() {
             let code = editor.value;
             let html = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-            const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لاجل|في|دالة|ارجع|صح|خطأ|صنف|اصل)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
+            const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لكل|في|دالة|ارجع|صح|خطأ|صنف|اصل)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
 
             html = html.replace(regex, (match, comment, str, kw, num, op) => {
                 if (comment) return `<span class="text-slate-500 italic">${comment}</span>`;
@@ -157,20 +163,17 @@
             totalOutputLines = 0;
         }
 
-        // دالة مساعدة لإنشاء وإضافة الأسطر إلى البافر (Buffer)
         function appendToTerminal(text, colorClass) {
             const span = document.createElement('span');
             span.className = colorClass;
             span.innerHTML = text;
             
-            // حساب الأسطر وتخزينها في العنصر
             let linesCount = (text.match(/\n/g) || []).length + (text.trim() === '' ? 0 : 1);
             span.dataset.lines = linesCount;
             totalOutputLines += linesCount;
 
             outputContent.appendChild(span);
 
-            // البافر السحري: إذا تجاوزنا 10 آلاف، احذف من الأعلى
             while (totalOutputLines > MAX_LINES && outputContent.firstChild) {
                 let oldLines = parseInt(outputContent.firstChild.dataset.lines || 1);
                 totalOutputLines -= oldLines;
@@ -182,19 +185,24 @@
 
         function setButtonState(state) {
             if (state === 'connecting') {
-                runBtn.innerHTML = '<span>جاري الاتصال...</span> <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+                isRunning = false;
+                runBtn.innerHTML = '<span class="pt-[3px] sm:pt-[2px]">جاري الاتصال...</span> <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
                 runBtn.disabled = true;
                 runBtn.className = "bg-slate-600 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg cursor-not-allowed opacity-80";
             } else if (state === 'ready') {
-                runBtn.innerHTML = '<span>تشغيل</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" class="rotate-180"><polygon points="5 4 19 12 5 20"></polygon></svg>';
+                isRunning = false;
+                runBtn.innerHTML = '<span class="pt-[3px] sm:pt-[2px]">تشغيل</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" class="rotate-180"><polygon points="5 4 19 12 5 20"></polygon></svg>';
                 runBtn.disabled = false;
                 runBtn.className = "bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-900/20 active:scale-95";
             } else if (state === 'running') {
-                runBtn.innerHTML = '<span>قيد التنفيذ...</span> <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-                runBtn.disabled = true;
-                runBtn.className = "bg-slate-600 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg cursor-not-allowed opacity-80";
+                isRunning = true;
+                // الزر يتحول للون الأحمر ليصبح زر "إيقاف" يمكن الضغط عليه
+                runBtn.innerHTML = '<span class="pt-[3px] sm:pt-[2px]">إيقاف</span> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect></svg>';
+                runBtn.disabled = false; 
+                runBtn.className = "bg-red-600 hover:bg-red-500 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-900/20 active:scale-95";
             } else if (state === 'error') {
-                runBtn.innerHTML = '<span>انقطع الاتصال</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+                isRunning = false;
+                runBtn.innerHTML = '<span class="pt-[3px] sm:pt-[2px]">انقطع الاتصال</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
                 runBtn.disabled = true;
                 runBtn.className = "bg-red-600 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg cursor-not-allowed opacity-90";
             }
@@ -233,8 +241,14 @@
                 };
 
                 ws.onclose = () => {
-                    setButtonState('error');
-                    setTimeout(connectWebSocket, 3000);
+                    // إذا كان الإغلاق متعمداً من زر الإيقاف، أعد الاتصال بصمت فوراً
+                    if (intentionalClose) {
+                        intentionalClose = false;
+                        connectWebSocket(); 
+                    } else {
+                        setButtonState('error');
+                        setTimeout(connectWebSocket, 3000);
+                    }
                 };
                 
                 ws.onerror = () => {
@@ -244,6 +258,20 @@
                 };
             } catch (error) {
                 console.error("خطأ في تهيئة الاتصال:", error);
+            }
+        }
+
+        // دالة التبديل: تشغل الكود إذا كان متوقفاً، وتوقفه إذا كان يعمل
+        function toggleRun() {
+            if (isRunning) {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    intentionalClose = true;
+                    ws.close(); // يقتل العملية في السيرفر فوراً
+                    appendToTerminal("\n⚠️ تم إيقاف التنفيذ يدوياً.\n", "text-amber-400 font-bold");
+                    terminalInput.disabled = true;
+                }
+            } else {
+                startRun();
             }
         }
 
