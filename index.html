@@ -37,6 +37,7 @@
         
         #output-content { white-space: pre-wrap; }
         
+        /* تصميم شريط التمرير */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
@@ -97,7 +98,7 @@
                 <button onclick="clearConsole()" class="text-slate-500 hover:text-slate-200 transition-colors px-2 py-1 rounded hover:bg-slate-700/50 text-xs">مسح الشاشة</button>
             </div>
             
-            <div id="output-container" class="flex-1 p-4 overflow-y-auto" dir="rtl" style="text-align: right;">
+            <div id="output-container" class="flex-1 p-4 overflow-y-scroll" dir="rtl" style="text-align: right;">
                 <div id="output-content" class="text-slate-300 text-sm sm:text-base leading-relaxed"></div>
             </div>
 
@@ -131,7 +132,6 @@
             const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لكل|في|دالة|ارجع|صح|خطأ|صنف|اصل)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
 
             html = html.replace(regex, (match, comment, str, kw, num, op) => {
-                // إزالة كلاسات font-bold و italic لمنع اختلاف عروض الحروف عن طبقة الكتابة
                 if (comment) return `<span class="text-slate-500">${comment}</span>`;
                 if (str)     return `<span class="text-amber-400">${str}</span>`;
                 if (kw)      return `<span class="text-fuchsia-400">${kw}</span>`;
