@@ -73,7 +73,6 @@
 
     <main class="flex-1 flex flex-col md:flex-row bg-[#0b1120] overflow-hidden w-full">
         
-        <!-- قسم المحرر -->
         <section class="flex-1 flex flex-col border-b md:border-b-0 md:border-l border-slate-700/50 min-h-0">
             <div class="bg-slate-800/50 text-slate-400 text-xs sm:text-sm py-2 px-3 sm:px-4 border-b border-slate-700/50 shrink-0 flex items-center justify-between gap-2">
                 <span class="flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0">
@@ -81,7 +80,6 @@
                     <span>الشيفرة المصدرية</span>
                 </span>
                 
-                <!-- تم إصلاح عرض زر الأمثلة ليظهر بشكل متناسق دائماً -->
                 <select id="examplesDropdown" onchange="loadExample()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-2 py-1.5 rounded outline-none border border-slate-600 transition-colors cursor-pointer w-32 sm:w-48 text-ellipsis overflow-hidden whitespace-nowrap">
                     <option value="hello">المثال 1: المتغيرات والطباعة</option>
                     <option value="cond">المثال 2: الجمل الشرطية</option>
@@ -97,13 +95,11 @@
             </div>
             
             <div class="flex-1 relative overflow-hidden bg-transparent w-full">
-                <!-- تم تفعيل no-scrollbar هنا لحماية الجوال -->
                 <pre id="highlightLayer" class="code-font absolute inset-0 w-full h-full p-4 overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-all pointer-events-none text-slate-300 z-0 text-right bg-transparent no-scrollbar" dir="rtl"></pre>
                 <textarea id="editor" class="code-font absolute inset-0 w-full h-full p-4 bg-transparent text-transparent caret-white outline-none resize-none overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-all z-10 text-right no-scrollbar" dir="rtl" spellcheck="false" placeholder="اكتب كود ألف 5.3 هنا..."></textarea>
             </div>
         </section>
 
-        <!-- قسم التيرمينال -->
         <section class="flex-1 flex flex-col bg-black/40 shadow-inner min-h-0">
             <div class="bg-slate-800/50 text-slate-400 text-xs sm:text-sm py-2 px-4 border-b border-slate-700/50 flex justify-between items-center shrink-0">
                 <span class="flex items-center gap-2">
@@ -113,7 +109,6 @@
                 <button onclick="clearConsole()" class="text-slate-500 hover:text-slate-200 transition-colors px-2 py-1 rounded hover:bg-slate-700/50 text-xs">مسح الشاشة</button>
             </div>
             
-            <!-- تم إضافة no-scrollbar للقضاء على شريط التمرير الذي كسر الشاشة -->
             <div id="output-container" class="flex-1 p-4 overflow-y-auto overflow-x-hidden no-scrollbar w-full" dir="rtl">
                 <div id="output-content" class="text-slate-300 text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words w-full text-right"></div>
             </div>
@@ -148,17 +143,18 @@
             oop: `# مثال يبرز قوة البرمجة كائنية التوجه (OOP)\n\nصنف انسان:\n    دالة __تهيئة__(هذا, عمر):\n        هذا.العمر = عمر\n\nصنف شخص(انسان):\n    دالة __تهيئة__(هذا, عمر, طول):\n        اصل().__تهيئة__(عمر)\n        هذا.الطول = طول\n\n    دالة __عرض__(هذا):\n        ارجع م"الطول: {هذا.الطول} سم، العمر: {هذا.العمر} سنة"\n\n# إنشاء كائن جديد وتجربته\nالبطل = شخص(25, 180)\nاطبع("--- بيانات اللاعب ---")\nاطبع(البطل)`,
             arrays: `# التعامل مع المصفوفات\n\nسيارات = ["رياضية", "عائلية", "كهربائية"]\nاطبع("أول سيارة:", سيارات[0])\n\nسيارات.اضف("شاحنة")\nاطبع("بعد الإضافة:", سيارات)\n\nسيارات.امسح("عائلية")\nاطبع("بعد الحذف:", سيارات)\n\nارقام = [7, 1, 8, 9, 5, 36]\nارقام.رتب()\nاطبع("أرقام مرتبة:", ارقام)`,
             dict: `# القواميس (الفهارس)\n\nعلامات = {"عربي": 95, "رياضيات": 88, "علوم": 92}\nاطبع("مفاتيح الفهرس:", علامات.مفاتيح())\nاطبع("القيم:", علامات.قيم())\n\n# جلب قيمة غير موجودة مع قيمة افتراضية\nتاريخ = علامات.احضر("تاريخ", "المادة غير مسجلة")\nاطبع(م"نتيجة التاريخ: {تاريخ}")`,
-            trycatch: `# معالجة الأخطاء الاستثنائية\n\nحاول:\n    اطبع("نحاول قسمة عدد على صفر...")\n    نتيجة = 10 / 0\nخلل:\n    اطبع("حدث خطأ! لا يمكن القسمة على صفر.")\nوالا:\n    اطبع("تمت العملية بنجاح.")\nنهاية:\n    اطبع("--- انتهى فحص الأخطاء ---")`,
+            
+            // تم تحديث مثال معالجة الأخطاء هنا بناءً على طلبك
+            trycatch: `# معالجة الأخطاء الاستثنائية\n\nصنف سيارة:\n    السرعة = 240\n    اللون = "اسود"\n\nالسيارة = سيارة()\n\nحاول:\n    الوزن = السيارة.الوزن\nخلل خطأ_صفة:\n    اطبع("هذه الصفة غير متوفرة في هذا الكائن")`,
+            
             input: `# تفاعل الطرفية مع إدخال المستخدم\n\nالمجموع = 0\nاطبع("--- برنامج جمع الأرقام ---")\n\nلكل س في مدى(3):\n    رقم = صحيح(ادخل(م"ادخل العدد رقم {س + 1}: "))\n    المجموع += رقم\n\nاطبع(م"المجموع النهائي هو: {المجموع}")`,
             blank: ``
         };
 
         function updateHighlight() {
             let code = editor.value;
-            // حماية علامات الـ HTML أولاً
             let html = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-            // تم إصلاح الـ Regex هنا ليلون إشارات الأكبر والأصغر بشكل سليم دون إفساد الـ HTML
             const regex = /(#.*)|(م?"[^"]*")|(^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|اواذا|والا|بينما|لكل|في|دالة|ارجع|صح|خطأ|عدم|صنف|اصل|حاول|خلل|نهاية|توقف|استمر|احذف|استورد|من)(?=[^أ-يa-zA-Z0-9_]|$)|(^|[^أ-يa-zA-Z0-9_])(\d+(\.\d+)?)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/!^|]|&lt;|&gt;|&amp;)/g;
 
             html = html.replace(regex, (match, comment, str, beforeKw, kw, beforeNum, num, numDec, op) => {
@@ -243,115 +239,4 @@
                 isRunning = false;
                 runBtn.innerHTML = '<span class="pt-[3px] sm:pt-[2px]">تشغيل</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" class="rotate-180"><polygon points="5 4 19 12 5 20"></polygon></svg>';
                 runBtn.disabled = false;
-                runBtn.className = "bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-900/20 active:scale-95";
-            } else if (state === 'running') {
-                isRunning = true;
-                runBtn.innerHTML = '<span class="pt-[3px] sm:pt-[2px]">إيقاف</span> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect></svg>';
-                runBtn.disabled = false; 
-                runBtn.className = "bg-red-600 hover:bg-red-500 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-900/20 active:scale-95";
-            } else if (state === 'error') {
-                isRunning = false;
-                runBtn.innerHTML = '<span class="pt-[3px] sm:pt-[2px]">انقطع الاتصال</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
-                runBtn.disabled = true;
-                runBtn.className = "bg-red-600 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg cursor-not-allowed opacity-90";
-            }
-        }
-
-        function connectWebSocket() {
-            setButtonState('connecting');
-
-            try {
-                ws = new WebSocket('wss://alif-playground.onrender.com');
-                
-                ws.onopen = () => {
-                    setButtonState('ready');
-                    if (outputContent.innerHTML.trim() === '') {
-                        appendToTerminal("--- تم الاتصال بمحرك ألف 5.3 بنجاح ---\n", "text-green-500 font-bold");
-                    } else {
-                        appendToTerminal("\n--- تم إعادة الاتصال والمحرك جاهز ---\n", "text-green-500 font-bold bg-green-900/20 px-2 py-1 rounded inline-block mt-2");
-                    }
-                };
-
-                ws.onmessage = (event) => {
-                    const data = JSON.parse(event.data);
-                    
-                    if (data.type === 'output' || data.type === 'error') {
-                        const colorClass = data.type === 'error' ? 'text-red-400' : 'text-slate-300';
-                        appendToTerminal(escapeHTML(data.text), colorClass);
-                        
-                        terminalInput.disabled = false;
-                        terminalInput.focus();
-                    } 
-                    else if (data.type === 'done') {
-                        appendToTerminal("\n--- انتهى تنفيذ البرنامج ---\n", "text-slate-500");
-                        terminalInput.disabled = true;
-                        setButtonState('ready');
-                    }
-                };
-
-                ws.onclose = () => {
-                    if (intentionalClose) {
-                        intentionalClose = false;
-                        connectWebSocket(); 
-                    } else {
-                        setButtonState('error');
-                        setTimeout(connectWebSocket, 3000);
-                    }
-                };
-                
-                ws.onerror = () => {
-                    if(ws.readyState !== WebSocket.CLOSED){
-                         appendToTerminal("\nحدث خطأ في الاتصال بالسحابة.\n", "text-red-400");
-                    }
-                };
-            } catch (error) {
-                console.error("خطأ في تهيئة الاتصال:", error);
-            }
-        }
-
-        function toggleRun() {
-            if (isRunning) {
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    intentionalClose = true;
-                    ws.close(); 
-                    appendToTerminal("\n⚠️ تم إيقاف التنفيذ يدوياً.\n", "text-amber-400 font-bold");
-                    terminalInput.disabled = true;
-                }
-            } else {
-                startRun();
-            }
-        }
-
-        function startRun() {
-            if (!ws || ws.readyState !== WebSocket.OPEN) return;
-
-            clearConsole();
-            setButtonState('running');
-            terminalInput.disabled = false;
-            terminalInput.value = '';
-
-            let cleanCode = editor.value.replace(/\u00A0/g, " ");
-            ws.send(JSON.stringify({ type: 'run', code: cleanCode }));
-        }
-
-        terminalInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const val = terminalInput.value;
-                if (!val) return; 
-                
-                appendToTerminal(escapeHTML(val) + "\n", "text-green-400");
-                ws.send(JSON.stringify({ type: 'input', text: val }));
-                terminalInput.value = ''; 
-                
-                if(window.innerWidth > 768) terminalInput.focus();
-            }
-        });
-
-        function escapeHTML(text) {
-            return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-
-        connectWebSocket();
-    </script>
-</body>
-</html>
+                runBtn.className = "bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-900/20 active
