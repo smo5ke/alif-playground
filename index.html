@@ -21,6 +21,9 @@
             tab-size: 4; 
             line-height: 1.7; 
             font-size: 13px;
+            /* منع المتصفح من تغيير المسافات بين الحروف */
+            letter-spacing: normal !important;
+            word-spacing: normal !important;
         }
         @media (min-width: 640px) {
             .code-font { font-size: 15px; }
@@ -63,7 +66,7 @@
             </div>
             
             <div class="flex-1 relative overflow-hidden bg-transparent">
-                <pre id="highlightLayer" class="code-font absolute top-0 right-0 w-full h-full p-4 overflow-auto whitespace-pre-wrap break-all pointer-events-none text-slate-300 z-0 text-right bg-transparent" dir="rtl"></pre>
+                <pre id="highlightLayer" class="code-font absolute top-0 right-0 w-full h-full p-4 overflow-hidden whitespace-pre-wrap break-all pointer-events-none text-slate-300 z-0 text-right bg-transparent" dir="rtl"></pre>
                 
                 <textarea id="editor" class="code-font absolute top-0 right-0 w-full h-full p-4 bg-transparent text-transparent caret-white outline-none resize-none overflow-auto whitespace-pre-wrap break-all z-10 text-right" dir="rtl" spellcheck="false" placeholder="اكتب كود ألف 5.3 هنا...">
 # مثال يبرز قوة البرمجة كائنية التوجه (OOP) في ألف 5.3
@@ -118,7 +121,6 @@
         let totalOutputLines = 0;
         const MAX_LINES = 10000;
         
-        // متغيرات للتحكم بحالة زر الإيقاف والتشغيل
         let isRunning = false;
         let intentionalClose = false;
 
@@ -126,14 +128,15 @@
             let code = editor.value;
             let html = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-            const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لكل|في|دالة|ارجع|صح|خطأ|صنف|اصل)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
+            const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لاجل|في|دالة|ارجع|صح|خطأ|صنف|اصل)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
 
             html = html.replace(regex, (match, comment, str, kw, num, op) => {
-                if (comment) return `<span class="text-slate-500 italic">${comment}</span>`;
+                // إزالة كلاسات font-bold و italic لمنع اختلاف عروض الحروف عن طبقة الكتابة
+                if (comment) return `<span class="text-slate-500">${comment}</span>`;
                 if (str)     return `<span class="text-amber-400">${str}</span>`;
-                if (kw)      return `<span class="text-fuchsia-400 font-bold">${kw}</span>`;
+                if (kw)      return `<span class="text-fuchsia-400">${kw}</span>`;
                 if (num)     return `<span class="text-cyan-400">${num}</span>`;
-                if (op)      return `<span class="text-blue-400 font-bold">${op}</span>`;
+                if (op)      return `<span class="text-blue-400">${op}</span>`;
                 return match;
             });
 
@@ -196,7 +199,6 @@
                 runBtn.className = "bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-900/20 active:scale-95";
             } else if (state === 'running') {
                 isRunning = true;
-                // الزر يتحول للون الأحمر ليصبح زر "إيقاف" يمكن الضغط عليه
                 runBtn.innerHTML = '<span class="pt-[3px] sm:pt-[2px]">إيقاف</span> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect></svg>';
                 runBtn.disabled = false; 
                 runBtn.className = "bg-red-600 hover:bg-red-500 text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-900/20 active:scale-95";
@@ -241,7 +243,6 @@
                 };
 
                 ws.onclose = () => {
-                    // إذا كان الإغلاق متعمداً من زر الإيقاف، أعد الاتصال بصمت فوراً
                     if (intentionalClose) {
                         intentionalClose = false;
                         connectWebSocket(); 
@@ -261,12 +262,11 @@
             }
         }
 
-        // دالة التبديل: تشغل الكود إذا كان متوقفاً، وتوقفه إذا كان يعمل
         function toggleRun() {
             if (isRunning) {
                 if (ws && ws.readyState === WebSocket.OPEN) {
                     intentionalClose = true;
-                    ws.close(); // يقتل العملية في السيرفر فوراً
+                    ws.close(); 
                     appendToTerminal("\n⚠️ تم إيقاف التنفيذ يدوياً.\n", "text-amber-400 font-bold");
                     terminalInput.disabled = true;
                 }
