@@ -36,26 +36,21 @@
         
         #output-content { white-space: pre-wrap; }
         
-        /* إلغاء تخصيص شريط التمرير تماماً للهواتف والأجهزة اللوحية لاستخدام السكرول الافتراضي الشفاف */
-        @media (max-width: 1023px) {
+        /* الحل الجذري: 
+          إخفاء شريط التمرير بالكامل على الجوال لضمان عدم حدوث أي انزياح (يمكن التمرير باللمس)
+        */
+        @media (max-width: 767px) {
             * {
-                -ms-overflow-style: auto !important;
-                scrollbar-width: auto !important;
+                -ms-overflow-style: none;  /* IE and Edge */
+                scrollbar-width: none;  /* Firefox */
             }
             *::-webkit-scrollbar {
-                width: auto !important;
-                height: auto !important;
-                display: block !important;
-            }
-            *::-webkit-scrollbar-track, 
-            *::-webkit-scrollbar-thumb {
-                background: transparent !important;
-                border: none !important;
+                display: none; /* Chrome, Safari and Opera */
             }
         }
 
-        /* تخصيص مظهر شريط التمرير على الحواسب الشخصية فقط */
-        @media (min-width: 1024px) {
+        /* إظهار شريط التمرير وتجميله على الكمبيوتر فقط */
+        @media (min-width: 768px) {
             ::-webkit-scrollbar { width: 6px; height: 6px; }
             ::-webkit-scrollbar-track { background: transparent; }
             ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
@@ -67,7 +62,7 @@
 
     <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/50 p-3 sm:p-4 flex justify-between items-center shadow-lg z-10 shrink-0">
         <div class="flex items-center gap-3 sm:gap-4">
-            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded flex items-center justify-center font-bold text-white">أ</div>
+            <img src="./AlifLogo.ico" alt="شعار لغة ألف" class="h-8 sm:h-11 w-auto object-contain drop-shadow-md">
             <h1 class="text-lg sm:text-2xl font-bold tracking-wide text-slate-100 pt-1">
                 محرر <span class="text-blue-400">ألف 5.3</span>
             </h1>
@@ -80,7 +75,6 @@
 
     <main class="flex-1 grid grid-rows-2 md:grid-rows-1 md:grid-cols-2 overflow-hidden bg-[#0b1120]">
         
-        <!-- قسم محرر الشيفرة المصدرية -->
         <section class="flex flex-col overflow-hidden border-b md:border-b-0 md:border-l border-slate-700/50">
             <div class="bg-slate-800/50 text-slate-400 text-xs sm:text-sm py-2 px-4 border-b border-slate-700/50 shrink-0 flex items-center justify-between">
                 <span class="flex items-center gap-2">
@@ -115,7 +109,6 @@
             </div>
         </section>
 
-        <!-- قسم طرفية المخرجات -->
         <section class="flex flex-col overflow-hidden bg-black/40 relative shadow-inner">
             <div class="bg-slate-800/50 text-slate-400 text-xs sm:text-sm py-2 px-4 border-b border-slate-700/50 flex justify-between items-center shrink-0">
                 <span class="flex items-center gap-2">
@@ -147,7 +140,7 @@
         
         let ws;
         let totalOutputLines = 0;
-        const MAX_LINES = 10000;
+        const MAX_LINES = 10000; 
         
         let isRunning = false;
         let intentionalClose = false;
@@ -237,85 +230,55 @@
             }
         }
 
-        function setupWebSocketHandlers() {
-            ws.onopen = () => {
-                setButtonState('ready');
-                if (outputContent.innerHTML.trim() === '') {
-                    appendToTerminal("--- تم الاتصال بمحرك ألف 5.3 بنجاح ---\n", "text-green-500 font-bold");
-                } else {
-                    appendToTerminal("\n--- تم إعادة الاتصال والمحرك جاهز ---\n", "text-green-500 font-bold bg-green-900/20 px-2 py-1 rounded inline-block mt-2");
-                }
-            };
-
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                
-                if (data.type === 'output' || data.type === 'error') {
-                    const colorClass = data.type === 'error' ? 'text-red-400' : 'text-slate-300';
-                    appendToTerminal(escapeHTML(data.text), colorClass);
-                    
-                    terminalInput.disabled = false;
-                    terminalInput.focus();
-                } 
-                else if (data.type === 'done') {
-                    appendToTerminal("\n--- انتهى تنفيذ البرنامج ---\n", "text-slate-500");
-                    terminalInput.disabled = true;
-                    setButtonState('ready');
-                }
-            };
-
-            ws.onclose = () => {
-                if (intentionalClose) {
-                    intentionalClose = false;
-                    connectWebSocket(); 
-                } else {
-                    setButtonState('error');
-                    setTimeout(connectWebSocket, 3000);
-                }
-            };
-            
-            ws.onerror = () => {
-                if(ws.readyState !== WebSocket.CLOSED && !ws.isMock){
-                     appendToTerminal("\nحدث خطأ في الاتصال بالسحابة.\n", "text-red-400");
-                }
-            };
-        }
-
         function connectWebSocket() {
             setButtonState('connecting');
 
             try {
                 ws = new WebSocket('wss://alif-playground.onrender.com');
-                setupWebSocketHandlers();
-            } catch (error) {
-                console.error("خطأ في تهيئة الاتصال:", error);
                 
-                ws = {
-                    readyState: 1,
-                    isMock: true,
-                    send: function(dataStr) {
-                        const data = JSON.parse(dataStr);
-                        if (data.type === 'run') {
-                            setTimeout(() => {
-                                if(this.onmessage) this.onmessage({ data: JSON.stringify({ type: 'output', text: '⚠️ تنبيه: بيئة المعاينة تمنع الاتصال المباشر بالسيرفر لأسباب أمنية.\n(تم استلام طلب التشغيل بنجاح، ستعمل لغة ألف بشكل حقيقي عند رفع الكود على استضافتك)\n\n' }) });
-                                setTimeout(() => {
-                                    if(this.onmessage) this.onmessage({ data: JSON.stringify({ type: 'done' }) });
-                                }, 500);
-                            }, 500);
-                        } else if (data.type === 'input') {
-                            setTimeout(() => {
-                                 if(this.onmessage) this.onmessage({ data: JSON.stringify({ type: 'output', text: 'إدخال وهمي: ' + data.text + '\n' }) });
-                            }, 200);
-                        }
-                    },
-                    close: function() {
-                        this.readyState = 3;
-                        if(this.onclose) this.onclose();
+                ws.onopen = () => {
+                    setButtonState('ready');
+                    if (outputContent.innerHTML.trim() === '') {
+                        appendToTerminal("--- تم الاتصال بمحرك ألف 5.3 بنجاح ---\n", "text-green-500 font-bold");
+                    } else {
+                        appendToTerminal("\n--- تم إعادة الاتصال والمحرك جاهز ---\n", "text-green-500 font-bold bg-green-900/20 px-2 py-1 rounded inline-block mt-2");
+                    }
+                };
+
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.type === 'output' || data.type === 'error') {
+                        const colorClass = data.type === 'error' ? 'text-red-400' : 'text-slate-300';
+                        appendToTerminal(escapeHTML(data.text), colorClass);
+                        
+                        terminalInput.disabled = false;
+                        terminalInput.focus();
+                    } 
+                    else if (data.type === 'done') {
+                        appendToTerminal("\n--- انتهى تنفيذ البرنامج ---\n", "text-slate-500");
+                        terminalInput.disabled = true;
+                        setButtonState('ready');
+                    }
+                };
+
+                ws.onclose = () => {
+                    if (intentionalClose) {
+                        intentionalClose = false;
+                        connectWebSocket(); 
+                    } else {
+                        setButtonState('error');
+                        setTimeout(connectWebSocket, 3000);
                     }
                 };
                 
-                setupWebSocketHandlers();
-                setTimeout(() => { if(ws.onopen) ws.onopen(); }, 500);
+                ws.onerror = () => {
+                    if(ws.readyState !== WebSocket.CLOSED){
+                         appendToTerminal("\nحدث خطأ في الاتصال بالسحابة.\n", "text-red-400");
+                    }
+                };
+            } catch (error) {
+                console.error("خطأ في تهيئة الاتصال:", error);
             }
         }
 
