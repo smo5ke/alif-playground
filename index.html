@@ -21,7 +21,6 @@
             tab-size: 4; 
             line-height: 1.7; 
             font-size: 13px;
-            /* منع المتصفح من تغيير المسافات بين الحروف */
             letter-spacing: normal !important;
             word-spacing: normal !important;
         }
@@ -37,7 +36,6 @@
         
         #output-content { white-space: pre-wrap; }
         
-        /* تصميم شريط التمرير */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
@@ -59,17 +57,14 @@
         </button>
     </header>
 
-    <main class="flex-1 grid grid-rows-2 md:grid-rows-1 md:grid-cols-2 overflow-hidden bg-[#0b1120]">
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden bg-[#0b1120]">
         
-        <section class="flex flex-col overflow-hidden border-b md:border-b-0 md:border-l border-slate-700/50">
+        <section class="h-1/2 md:h-full md:w-1/2 flex flex-col overflow-hidden border-b md:border-b-0 md:border-l border-slate-700/50">
             <div class="bg-slate-800/50 text-slate-400 text-xs sm:text-sm py-2 px-4 border-b border-slate-700/50 shrink-0 flex items-center justify-between">
-                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> الشيفرة المصدري</span>
+                <span class="flex items-center gap-2">الشيفرة المصدرية</span>
             </div>
-            
-            <div class="flex-1 relative overflow-hidden bg-transparent">
-                <pre id="highlightLayer" class="code-font absolute top-0 right-0 w-full h-full p-4 overflow-hidden whitespace-pre-wrap break-all pointer-events-none text-slate-300 z-0 text-right bg-transparent" dir="rtl"></pre>
-                
-                <textarea id="editor" class="code-font absolute top-0 right-0 w-full h-full p-4 bg-transparent text-transparent caret-white outline-none resize-none overflow-auto whitespace-pre-wrap break-all z-10 text-right" dir="rtl" spellcheck="false" placeholder="اكتب كود ألف 5.3 هنا...">
+            <div class="flex-1 relative overflow-hidden">
+                <textarea id="editor" class="code-font absolute inset-0 w-full h-full p-4 bg-transparent text-slate-200 caret-white outline-none resize-none overflow-auto whitespace-pre-wrap break-all z-10 text-right" dir="rtl" spellcheck="false" placeholder="اكتب كود ألف 5.3 هنا...">
 # مثال يبرز قوة البرمجة كائنية التوجه (OOP) في ألف 5.3
 
 صنف انسان:
@@ -92,27 +87,23 @@
             </div>
         </section>
 
-        <section class="flex flex-col overflow-hidden bg-black/40 relative shadow-inner">
+        <section class="h-1/2 md:h-full md:w-1/2 flex flex-col overflow-hidden bg-black/40 relative shadow-inner">
             <div class="bg-slate-800/50 text-slate-400 text-xs sm:text-sm py-2 px-4 border-b border-slate-700/50 flex justify-between items-center shrink-0">
-                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>طرفية المخرجات</span>
-                <button onclick="clearConsole()" class="text-slate-500 hover:text-slate-200 transition-colors px-2 py-1 rounded hover:bg-slate-700/50 text-xs">مسح الشاشة</button>
+                <span>طرفية المخرجات</span>
+                <button onclick="clearConsole()" class="text-slate-500 hover:text-slate-200 text-xs">مسح الشاشة</button>
             </div>
-            
-            <div id="output-container" class="flex-1 p-4 overflow-y-scroll" dir="rtl" style="text-align: right;">
-                <div id="output-content" class="text-slate-300 text-sm sm:text-base leading-relaxed"></div>
+            <div id="output-container" class="flex-1 p-4 overflow-y-scroll" dir="rtl" style="text-align: right; width: 100%; box-sizing: border-box;">
+                <div id="output-content" class="text-slate-300 text-sm sm:text-base leading-relaxed w-full"></div>
             </div>
-
-            <div class="bg-slate-900/80 backdrop-blur border-t border-slate-700/50 flex items-center px-3 py-2 sm:px-4 sm:py-3 shrink-0">
-                <span class="text-green-500 font-bold ml-2 shrink-0">>></span>
-                <input type="text" id="terminalInput" class="flex-1 bg-transparent text-white outline-none text-sm sm:text-base placeholder-slate-600" placeholder="اكتب إدخالك هنا واضغط Enter..." disabled>
+            <div class="bg-slate-900/80 backdrop-blur border-t border-slate-700/50 flex items-center px-3 py-2 shrink-0">
+                <span class="text-green-500 font-bold ml-2">>></span>
+                <input type="text" id="terminalInput" class="flex-1 bg-transparent text-white outline-none text-sm" placeholder="اكتب إدخالك..." disabled>
             </div>
         </section>
-
     </main>
 
     <script>
         const editor = document.getElementById('editor');
-        const highlightLayer = document.getElementById('highlightLayer');
         const outputContent = document.getElementById('output-content');
         const outputContainer = document.getElementById('output-container');
         const terminalInput = document.getElementById('terminalInput');
@@ -121,68 +112,28 @@
         let ws;
         let totalOutputLines = 0;
         const MAX_LINES = 10000;
-        
         let isRunning = false;
         let intentionalClose = false;
-
-        function updateHighlight() {
-            let code = editor.value;
-            let html = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-            const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لكل|في|دالة|ارجع|صح|خطأ|صنف|اصل)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
-
-            html = html.replace(regex, (match, comment, str, kw, num, op) => {
-                if (comment) return `<span class="text-slate-500">${comment}</span>`;
-                if (str)     return `<span class="text-amber-400">${str}</span>`;
-                if (kw)      return `<span class="text-fuchsia-400">${kw}</span>`;
-                if (num)     return `<span class="text-cyan-400">${num}</span>`;
-                if (op)      return `<span class="text-blue-400">${op}</span>`;
-                return match;
-            });
-
-            highlightLayer.innerHTML = html + (code.endsWith('\n') ? '\n ' : '');
-        }
-
-        editor.addEventListener('input', updateHighlight);
-
-        editor.addEventListener('scroll', () => {
-            highlightLayer.scrollTop = editor.scrollTop;
-            highlightLayer.scrollLeft = editor.scrollLeft;
-        });
-
-        editor.addEventListener('keydown', function(e) {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                const start = this.selectionStart;
-                const end = this.selectionEnd;
-                this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
-                this.selectionStart = this.selectionEnd = start + 4;
-                updateHighlight();
-            }
-        });
 
         function clearConsole() { 
             outputContent.innerHTML = ''; 
             totalOutputLines = 0;
+            if (outputContent.dataset) outputContent.dataset.limitReached = "false";
         }
 
         function appendToTerminal(text, colorClass) {
             const span = document.createElement('span');
             span.className = colorClass;
             span.innerHTML = text;
-            
             let linesCount = (text.match(/\n/g) || []).length + (text.trim() === '' ? 0 : 1);
             span.dataset.lines = linesCount;
             totalOutputLines += linesCount;
-
             outputContent.appendChild(span);
-
             while (totalOutputLines > MAX_LINES && outputContent.firstChild) {
                 let oldLines = parseInt(outputContent.firstChild.dataset.lines || 1);
                 totalOutputLines -= oldLines;
                 outputContent.removeChild(outputContent.firstChild);
             }
-
             outputContainer.scrollTop = outputContainer.scrollHeight;
         }
 
@@ -212,10 +163,8 @@
 
         function connectWebSocket() {
             setButtonState('connecting');
-
             try {
                 ws = new WebSocket('wss://alif-playground.onrender.com');
-                
                 ws.onopen = () => {
                     setButtonState('ready');
                     if (outputContent.innerHTML.trim() === '') {
@@ -224,24 +173,19 @@
                         appendToTerminal("\n--- تم إعادة الاتصال والمحرك جاهز ---\n", "text-green-500 font-bold bg-green-900/20 px-2 py-1 rounded inline-block mt-2");
                     }
                 };
-
                 ws.onmessage = (event) => {
                     const data = JSON.parse(event.data);
-                    
                     if (data.type === 'output' || data.type === 'error') {
                         const colorClass = data.type === 'error' ? 'text-red-400' : 'text-slate-300';
                         appendToTerminal(escapeHTML(data.text), colorClass);
-                        
                         terminalInput.disabled = false;
                         terminalInput.focus();
-                    } 
-                    else if (data.type === 'done') {
+                    } else if (data.type === 'done') {
                         appendToTerminal("\n--- انتهى تنفيذ البرنامج ---\n", "text-slate-500");
                         terminalInput.disabled = true;
                         setButtonState('ready');
                     }
                 };
-
                 ws.onclose = () => {
                     if (intentionalClose) {
                         intentionalClose = false;
@@ -251,15 +195,8 @@
                         setTimeout(connectWebSocket, 3000);
                     }
                 };
-                
-                ws.onerror = () => {
-                    if(ws.readyState !== WebSocket.CLOSED){
-                         appendToTerminal("\nحدث خطأ في الاتصال بالسحابة.\n", "text-red-400");
-                    }
-                };
-            } catch (error) {
-                console.error("خطأ في تهيئة الاتصال:", error);
-            }
+                ws.onerror = () => { if(ws.readyState !== WebSocket.CLOSED) appendToTerminal("\nحدث خطأ في الاتصال.\n", "text-red-400"); };
+            } catch (error) { console.error("Error:", error); }
         }
 
         function toggleRun() {
@@ -277,12 +214,10 @@
 
         function startRun() {
             if (!ws || ws.readyState !== WebSocket.OPEN) return;
-
             clearConsole();
             setButtonState('running');
             terminalInput.disabled = false;
             terminalInput.value = '';
-
             let cleanCode = editor.value.replace(/\u00A0/g, " ");
             ws.send(JSON.stringify({ type: 'run', code: cleanCode }));
         }
@@ -291,21 +226,16 @@
             if (e.key === 'Enter') {
                 const val = terminalInput.value;
                 if (!val) return; 
-                
                 appendToTerminal(escapeHTML(val) + "\n", "text-green-400");
                 ws.send(JSON.stringify({ type: 'input', text: val }));
                 terminalInput.value = ''; 
-                
                 if(window.innerWidth > 768) terminalInput.focus();
             }
         });
 
-        function escapeHTML(text) {
-            return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
+        function escapeHTML(text) { return text.replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
         connectWebSocket();
-        updateHighlight();
     </script>
 </body>
 </html>
