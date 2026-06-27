@@ -36,21 +36,26 @@
         
         #output-content { white-space: pre-wrap; }
         
-        /* الحل الجذري: 
-          إخفاء شريط التمرير بالكامل على الجوال لضمان عدم حدوث أي انزياح (يمكن التمرير باللمس)
-        */
-        @media (max-width: 767px) {
+        /* إلغاء تخصيص شريط التمرير تماماً للهواتف والأجهزة اللوحية لاستخدام السكرول الافتراضي الشفاف */
+        @media (max-width: 1023px) {
             * {
-                -ms-overflow-style: none;  /* IE and Edge */
-                scrollbar-width: none;  /* Firefox */
+                -ms-overflow-style: auto !important;
+                scrollbar-width: auto !important;
             }
             *::-webkit-scrollbar {
-                display: none; /* Chrome, Safari and Opera */
+                width: auto !important;
+                height: auto !important;
+                display: block !important;
+            }
+            *::-webkit-scrollbar-track, 
+            *::-webkit-scrollbar-thumb {
+                background: transparent !important;
+                border: none !important;
             }
         }
 
-        /* إظهار شريط التمرير وتجميله على الكمبيوتر فقط */
-        @media (min-width: 768px) {
+        /* تخصيص مظهر شريط التمرير على الحواسب الشخصية فقط */
+        @media (min-width: 1024px) {
             ::-webkit-scrollbar { width: 6px; height: 6px; }
             ::-webkit-scrollbar-track { background: transparent; }
             ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
@@ -62,7 +67,6 @@
 
     <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/50 p-3 sm:p-4 flex justify-between items-center shadow-lg z-10 shrink-0">
         <div class="flex items-center gap-3 sm:gap-4">
-            <!-- مسار افتراضي لصورة شعار في حال أردت المعاينة هنا -->
             <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded flex items-center justify-center font-bold text-white">أ</div>
             <h1 class="text-lg sm:text-2xl font-bold tracking-wide text-slate-100 pt-1">
                 محرر <span class="text-blue-400">ألف 5.3</span>
@@ -76,6 +80,7 @@
 
     <main class="flex-1 grid grid-rows-2 md:grid-rows-1 md:grid-cols-2 overflow-hidden bg-[#0b1120]">
         
+        <!-- قسم محرر الشيفرة المصدرية -->
         <section class="flex flex-col overflow-hidden border-b md:border-b-0 md:border-l border-slate-700/50">
             <div class="bg-slate-800/50 text-slate-400 text-xs sm:text-sm py-2 px-4 border-b border-slate-700/50 shrink-0 flex items-center justify-between">
                 <span class="flex items-center gap-2">
@@ -110,6 +115,7 @@
             </div>
         </section>
 
+        <!-- قسم طرفية المخرجات -->
         <section class="flex flex-col overflow-hidden bg-black/40 relative shadow-inner">
             <div class="bg-slate-800/50 text-slate-400 text-xs sm:text-sm py-2 px-4 border-b border-slate-700/50 flex justify-between items-center shrink-0">
                 <span class="flex items-center gap-2">
@@ -141,7 +147,7 @@
         
         let ws;
         let totalOutputLines = 0;
-        const MAX_LINES = 10000; // بافر 10 آلاف سطر
+        const MAX_LINES = 10000;
         
         let isRunning = false;
         let intentionalClose = false;
@@ -153,7 +159,6 @@
             const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لكل|في|دالة|ارجع|صح|خطأ|صنف|اصل)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
 
             html = html.replace(regex, (match, comment, str, kw, num, op) => {
-                // تلوين نظيف بدون عريض ومائل لمنع اهتزاز الكورسر
                 if (comment) return `<span class="text-slate-500">${comment}</span>`;
                 if (str)     return `<span class="text-amber-400">${str}</span>`;
                 if (kw)      return `<span class="text-fuchsia-400">${kw}</span>`;
@@ -199,7 +204,6 @@
 
             outputContent.appendChild(span);
 
-            // البافر الدائري
             while (totalOutputLines > MAX_LINES && outputContent.firstChild) {
                 let oldLines = parseInt(outputContent.firstChild.dataset.lines || 1);
                 totalOutputLines -= oldLines;
@@ -286,7 +290,6 @@
             } catch (error) {
                 console.error("خطأ في تهيئة الاتصال:", error);
                 
-                // إنشاء محاكي (Mock) لأن بيئة Canvas تمنع الاتصال المباشر عبر WebSocket
                 ws = {
                     readyState: 1,
                     isMock: true,
@@ -294,7 +297,7 @@
                         const data = JSON.parse(dataStr);
                         if (data.type === 'run') {
                             setTimeout(() => {
-                                if(this.onmessage) this.onmessage({ data: JSON.stringify({ type: 'output', text: '⚠️ تنبيه: بيئة المعاينة (Canvas) تمنع الاتصال المباشر بالسيرفر لأسباب أمنية.\nتم استلام طلب التشغيل بنجاح، يرجى رفع الملف إلى GitHub لتجربة التنفيذ الحقيقي.\n' }) });
+                                if(this.onmessage) this.onmessage({ data: JSON.stringify({ type: 'output', text: '⚠️ تنبيه: بيئة المعاينة تمنع الاتصال المباشر بالسيرفر لأسباب أمنية.\n(تم استلام طلب التشغيل بنجاح، ستعمل لغة ألف بشكل حقيقي عند رفع الكود على استضافتك)\n\n' }) });
                                 setTimeout(() => {
                                     if(this.onmessage) this.onmessage({ data: JSON.stringify({ type: 'done' }) });
                                 }, 500);
