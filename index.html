@@ -16,7 +16,6 @@
             background-color: #0f172a; 
         }
         
-        /* توحيد الخطوط لطبقة التلوين وطبقة الكتابة بدقة متناهية */
         .code-font {
             font-family: 'Noto Kufi Arabic', sans-serif !important; 
             tab-size: 4; 
@@ -62,7 +61,7 @@
         
         <section class="flex flex-col overflow-hidden border-b md:border-b-0 md:border-l border-slate-700/50">
             <div class="bg-slate-800/50 text-slate-400 text-xs sm:text-sm py-2 px-4 border-b border-slate-700/50 shrink-0 flex items-center justify-between">
-                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> الشيفرة المصدرية</span>
+                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> الشيفرة المصدري</span>
             </div>
             
             <div class="flex-1 relative overflow-hidden bg-transparent">
@@ -97,10 +96,8 @@
                 <button onclick="clearConsole()" class="text-slate-500 hover:text-slate-200 transition-colors px-2 py-1 rounded hover:bg-slate-700/50 text-xs">مسح الشاشة</button>
             </div>
             
-            <div id="output-container" class="flex-1 p-4 overflow-y-auto overflow-x-hidden" dir="ltr">
-                <div dir="rtl" class="min-h-full w-full" style="text-align: right;">
-                    <div id="output-content" class="text-slate-300 text-sm sm:text-base leading-relaxed break-words"></div>
-                </div>
+            <div id="output-container" class="flex-1 p-4 overflow-y-auto" dir="rtl" style="text-align: right;">
+                <div id="output-content" class="text-slate-300 text-sm sm:text-base leading-relaxed"></div>
             </div>
 
             <div class="bg-slate-900/80 backdrop-blur border-t border-slate-700/50 flex items-center px-3 py-2 sm:px-4 sm:py-3 shrink-0">
@@ -133,7 +130,6 @@
             const regex = /(#.*)|(م?"[^"]*")|(?<=^|[^أ-يa-zA-Z0-9_])(اطبع|ادخل|اذا|والا|طالما|كرر|لكل|في|دالة|ارجع|صح|خطأ|صنف|اصل)(?=[^أ-يa-zA-Z0-9_]|$)|(?<=^|[^أ-يa-zA-Z0-9_])(\d+)(?=[^أ-يa-zA-Z0-9_]|$)|([=+\-*/])/g;
 
             html = html.replace(regex, (match, comment, str, kw, num, op) => {
-                // تلوين نظيف بدون عريض ومائل لمنع اهتزاز الكورسر
                 if (comment) return `<span class="text-slate-500">${comment}</span>`;
                 if (str)     return `<span class="text-amber-400">${str}</span>`;
                 if (kw)      return `<span class="text-fuchsia-400">${kw}</span>`;
@@ -179,7 +175,7 @@
 
             outputContent.appendChild(span);
 
-            // بافر دائري: يمسح من الأعلى إذا زاد عن 10 آلاف
+            // بافر الحذف من الأعلى للمحافظة على استقرار الطرفية والذاكرة
             while (totalOutputLines > MAX_LINES && outputContent.firstChild) {
                 let oldLines = parseInt(outputContent.firstChild.dataset.lines || 1);
                 totalOutputLines -= oldLines;
@@ -281,7 +277,6 @@
         function startRun() {
             if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
-            // تمسح الشاشة عند كل تشغيلة جديدة كما طلبت
             clearConsole();
             setButtonState('running');
             terminalInput.disabled = false;
